@@ -8,8 +8,8 @@ contract PublicationManager {
         string title;
         string[] authors;
         string institution;
-        string accessLink;
-        uint[] citations;  // IDs of publications that this publication cites
+        uint year;
+        string[] references;  // IDs of publications that this publication cites
         bool active;
     }
 
@@ -34,17 +34,24 @@ contract PublicationManager {
         string memory _title,
         string[] memory _authors,
         string memory _institution,
-        string memory _accessLink,
-        string[] memory _citations
+        uint _year,
+        string[] memory _references
     ) public publicationDoesNotExist(_doi) {
-        require(_citations.length > 0, "A publication must have at least one citation.");
         
-        // Check if all citations exist before create a publication
-        for (uint i = 0; i < _citations.length; i++) {
-            require(publications[_citations[i]].active, "All citations must exist.");
+        // Check if all references exist before create a publication
+        for (uint i = 0; i < _references.length; i++) {
+            require(publications[_references[i]].active, "Some reference does not exist.");
         }
 
-        publications[_doi] = Publication(_doi, _title, _authors, _institution, _accessLink, _citations, true);
+        publications[_doi] = Publication({
+            doi: _doi,
+            title: _title,
+            authors: _authors,
+            institution: _institution,
+            year: _year,
+            active: true,
+            references: _references
+        });
         emit PublicationCreated(_doi, _title);
     }
 
@@ -52,8 +59,8 @@ contract PublicationManager {
         return publications[_doi].title;
     }
 
-    function getCitationCount(string memory _doi) public view publicationExists(_doi) returns (uint) {
-        return publications[_doi].citations.length;
+    function getReferencesCount(string memory _doi) public view publicationExists(_doi) returns (uint) {
+        return publications[_doi].references.length;
     }
 
     function getPublicationByDOI(string memory _doi) public view publicationExists(_doi) returns (Publication memory) {

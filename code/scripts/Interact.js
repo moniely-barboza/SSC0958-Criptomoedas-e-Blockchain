@@ -1,23 +1,19 @@
-const { v4: uuidv4 } = require('uuid');
+const publications = [
+    ["10.2139/ssrn.2709713", "Blockchain Technology and Decentralized Governance: Is the State Still Necessary?", []], 
+    ["10.1007/978-3-662-53357-4_8", "On scaling decentralized blockchains (A position paper)", []],
+    ["10.1007/s12599-017-0467-3", "Blockchain", ["10.2139/ssrn.2709713", "10.1007/978-3-662-53357-4_8"]]
+];
 
 async function main() {
-    const contractAddress = "0x4D2D24899c0B115a1fce8637FCa610Fe02f1909e";
+    const contractAddress = "0x7f1Dc0F5F8dafd9715Ea51f6c11b92929b2Dbdea";
     const PublicationManager = await ethers.getContractFactory("PublicationManager");
     const contract = PublicationManager.attach(contractAddress);
 
-    //const id = uuidv4();
-    const doi = "00000001";
-    const title = "Teste 1";
-    const authors = ["Autor 1", "Autor 2"];
-    const institution = "Instituição 1";
-    const year = 2001;
-    const citations = [];
-
-    const tx = await contract.createPublication(doi, title, authors, institution, year, citations);
-    res = await tx.wait();
-    
-    console.log(res)
-    console.log(`Publicação criada: ${doi}, ${title}, ${authors}, ${institution}, ${year}, ${citations}`);
+    for (const [doi, title, references] of publications) {
+        const tx = await contract.createPublication(doi, title, references);
+        await tx.wait();
+        console.log(`Publicação criada: ${doi}, ${title}, ${references}`);
+    }
 }
 
 main()
